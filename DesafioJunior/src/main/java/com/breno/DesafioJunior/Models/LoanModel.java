@@ -14,12 +14,10 @@ public class LoanModel {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "userId", nullable = false)
-    @Column(nullable = false)
     private UserModel user;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "bookId", nullable = false)
-    @Column(nullable = false)
     private BookModel book;
 
     @Column(nullable = false)

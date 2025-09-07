@@ -18,9 +18,9 @@
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
             <fileNamePattern>${LOGS_PATH}/archived/log-%d{yyyy-MM-dd}.%i.log</fileNamePattern>
             <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
-                <maxFileSize>10MB</maxFileSize>
+                <maxFileSize>10MB</maxFileSize> <!-- Limite do tamanho do arquivo (Aumentar conforme a quantidade de dados diários para evitar logs excessivo de apenas um dia) -->
             </timeBasedFileNamingAndTriggeringPolicy>
-            <maxHistory>30</maxHistory>
+            <maxHistory>30</maxHistory> <!-- Mantém logs por 30 dias (No contexto de orgão policial, acredito que seja adequado aumentar este valor para manter um histórico mais longo) -->
         </rollingPolicy>
     </appender>
 

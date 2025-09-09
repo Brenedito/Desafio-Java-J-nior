@@ -2,5 +2,7 @@ package com.breno.DesafioJunior.Dtos;
 
 import com.breno.DesafioJunior.Enums.BookENUM;
 
-public record BookDTO(Long bookId, String title, String author, String isbn, String publishedDate, Integer TotalQuantity, Integer AvailableQuantity, BookENUM status) {
+import java.time.LocalDateTime;
+
+public record BookDTO(Long bookId, String title, String author, String isbn, LocalDateTime published_date, Integer total_quantity, Integer available_quantity, BookENUM status) {
 }

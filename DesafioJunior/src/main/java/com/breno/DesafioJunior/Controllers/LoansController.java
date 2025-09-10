@@ -39,8 +39,8 @@ public class LoansController {
             @ApiResponse(responseCode="404", description="Empréstimo não encontrado")
     })
     @GetMapping("/user/{userid}")
-    public ResponseEntity<LoanDTO> FindLoanByUserId(@PathVariable Long userid) {
-        return loansService.FindLoanById(userid);
+    public ResponseEntity<List<LoanDTO>> FindLoanByUserId(@PathVariable Long userid) {
+        return loansService.FindLoanByUserId(userid);
     }
 
     @Operation(summary="Cadastrar novo empréstimo", description="Cadastra um novo empréstimo ao sistema")
@@ -50,7 +50,7 @@ public class LoansController {
             @ApiResponse(responseCode="400", description="Requisição inválida")
     })
     @PostMapping
-    public ResponseEntity<LoanDTO> RegisterNewLoan(@RequestBody LoanDTO loanDTO) {
+    public ResponseEntity<LoanDTO> RegisterNewLoans(@RequestBody LoanDTO loanDTO) {
         return loansService.RegisterNewLoan(loanDTO);
     }
 

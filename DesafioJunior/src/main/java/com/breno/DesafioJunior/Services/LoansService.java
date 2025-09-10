@@ -40,12 +40,12 @@ public class LoansService {
         return ResponseEntity.ok(AllLoans);
     }
 
-    public ResponseEntity<LoanDTO> FindLoanById(Long id){
-        LoanDTO UniqueLoan = loanRepository.findById(id).map(this::toDTO).orElse(null);
-        if(UniqueLoan != null){
-            return ResponseEntity.ok(UniqueLoan);
+    public ResponseEntity<List<LoanDTO>> FindLoanByUserId(Long id){
+        List<LoanDTO> AllUserLoans = loanRepository.FindAllLoansByUserId(id).stream().map(this::toDTO).toList();
+        if(AllUserLoans.isEmpty()){
+            return ResponseEntity.notFound().build();
         }
-        return ResponseEntity.notFound().build();
+        return ResponseEntity.ok(AllUserLoans);
     }
 
     public ResponseEntity<LoanDTO> RegisterNewLoan(LoanDTO loanDTO){

@@ -29,8 +29,8 @@ public class UsersController {
             @ApiResponse(responseCode="400", description="Requisição inválida"),
     })
     @GetMapping
-    public ResponseEntity<List<UserDTO>> ListAllUsers() {
-        return usersService.ListAllUsers();
+    public ResponseEntity<List<UserDTO>> ListAllUsers(@RequestParam(required = false) Long after,@RequestParam(defaultValue = "10") int size) {
+        return usersService.ListUsers(after, size);
     }
 
     @Operation(summary="Buscar usuário por ID", description="Retorna os detalhes de um usuário específico")

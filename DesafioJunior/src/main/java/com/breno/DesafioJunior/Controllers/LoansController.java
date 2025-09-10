@@ -28,8 +28,8 @@ public class LoansController {
             @ApiResponse(responseCode ="404", description = "Empréstimo não encontrado")
     })
     @GetMapping
-    public ResponseEntity<List<LoanDTO>> ListAllLoans() {
-        return loansService.ListAllLoans();
+    public ResponseEntity<List<LoanDTO>> ListAllLoans(@RequestParam(required = false) Long after,@RequestParam(defaultValue = "10") int size) {
+        return loansService.ListLoans(after, size);
     }
 
     @Operation(summary="Buscar empréstimo por ID", description="Retorna os detalhes de um empréstimo específico")

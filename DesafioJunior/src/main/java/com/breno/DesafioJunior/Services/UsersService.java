@@ -1,5 +1,6 @@
 package com.breno.DesafioJunior.Services;
 
+import com.breno.DesafioJunior.Dtos.BookDTO;
 import com.breno.DesafioJunior.Dtos.UserDTO;
 import com.breno.DesafioJunior.Enums.UserENUM;
 import com.breno.DesafioJunior.Models.UserModel;
@@ -7,6 +8,8 @@ import com.breno.DesafioJunior.Repositories.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -21,15 +24,26 @@ public class UsersService {
     @Autowired
     private UserRepository userRepository;
 
-    public ResponseEntity<List<UserDTO>> ListAllUsers(){
+    public ResponseEntity<List<UserDTO>> ListUsers(Long after, int size){
         logger.info("Buscando todos os usuários registrados.");
-        List<UserDTO> AllUsers = userRepository.findAll().stream().map(this::toDTO).toList();
-        if(AllUsers.isEmpty()){
-            logger.info("Nenhum usuário encontrado no sistema.");
-            return ResponseEntity.noContent().build();
+
+        Pageable pageable = PageRequest.of(0, size);
+        List<UserDTO> ListOfUsers;
+
+        if(after == null){
+            logger.info("Listando os 10 primeiros usuários.");
+            ListOfUsers = userRepository.findByOrderByIdAsc(pageable).stream().map(this::toDTO).toList();
+        } else {
+            logger.info("Listando os 10 usuários após o ID: {}", after);
+            ListOfUsers = userRepository.findByUserIdGreaterThanOrderByIdAsc(after, pageable).stream().map(this::toDTO).toList();
         }
-        logger.info("Encontrados {} usuários no sistema.", AllUsers.size());
-        return ResponseEntity.ok(AllUsers);
+        if(ListOfUsers.isEmpty()){
+            logger.info("Nenhum usuário encontrado no sistema.");
+            return ResponseEntity.notFound().build();
+        }
+
+        logger.info("Encontrados {} usuários no sistema.", ListOfUsers.size());
+        return ResponseEntity.ok(ListOfUsers);
     }
 
     public ResponseEntity<UserDTO> FindUserById(Long id){

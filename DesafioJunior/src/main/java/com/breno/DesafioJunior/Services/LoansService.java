@@ -1,5 +1,6 @@
 package com.breno.DesafioJunior.Services;
 
+import com.breno.DesafioJunior.Dtos.BookDTO;
 import com.breno.DesafioJunior.Dtos.LoanDTO;
 import com.breno.DesafioJunior.Enums.LoanENUM;
 import com.breno.DesafioJunior.Models.BookModel;
@@ -11,6 +12,8 @@ import com.breno.DesafioJunior.Repositories.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -32,16 +35,26 @@ public class LoansService {
     @Autowired
     private UserRepository userRepository;
 
-    public ResponseEntity<List<LoanDTO>> ListAllLoans(){
+    public ResponseEntity<List<LoanDTO>> ListLoans(Long after, int size){
         logger.info("Buscando todos os empréstimos registrados.");
-        List<LoanDTO> AllLoans = loanRepository.findAll().stream().map(this::toDTO).toList();
-        if(AllLoans.isEmpty()){
-            logger.info("Nenhum empréstimo encontrado no sistema.");
-            return ResponseEntity.noContent().build();
+
+        Pageable pageable = PageRequest.of(0, size);
+        List<LoanDTO> ListOfLoans;
+
+        if(after == null){
+            logger.info("Listando os 10 primeiros empréstimos.");
+            ListOfLoans = loanRepository.findByOrderByIdAsc(pageable).stream().map(this::toDTO).toList();
         } else {
-            logger.info("Encontrados {} empréstimos no sistema.", AllLoans.size());
+            logger.info("Listando os 10 empréstimos após o ID: {}", after);
+            ListOfLoans = loanRepository.findByLoanIdGreaterThanOrderByIdAsc(after, pageable).stream().map(this::toDTO).toList();
         }
-        return ResponseEntity.ok(AllLoans);
+        if(ListOfLoans.isEmpty()){
+            logger.info("Nenhum empréstimo encontrado no sistema.");
+            return ResponseEntity.notFound().build();
+        }
+
+        logger.info("Encontrados {} livros no sistema.", ListOfLoans.size());
+        return ResponseEntity.ok(ListOfLoans);
     }
 
     public ResponseEntity<List<LoanDTO>> FindLoanByUserId(Long id){

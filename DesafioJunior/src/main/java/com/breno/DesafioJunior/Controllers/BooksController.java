@@ -29,8 +29,8 @@ public class BooksController {
             @ApiResponse(responseCode = "404", description = "Nenhum livro encontrado")
     })
     @GetMapping
-    public ResponseEntity<List<BookDTO>> ListAllBooks() {
-        return bookService.ListAllBooks();
+    public ResponseEntity<List<BookDTO>> ListAllBooks(@RequestParam(required = false) Long after,@RequestParam(defaultValue = "10") int size) {
+        return bookService.ListBooks(after, size);
     }
 
     @Operation(summary="Buscar livro por ID", description="Retorna os detalhes de um livro específico")

@@ -7,8 +7,10 @@ import com.breno.DesafioJunior.Repositories.BookRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
@@ -21,15 +23,26 @@ public class BooksService {
     @Autowired
     private BookRepository bookRepository;
 
-    public ResponseEntity<List<BookDTO>> ListAllBooks(){
+    public ResponseEntity<List<BookDTO>> ListBooks(Long after, int size){
         logger.info("Buscando todos os livros registrados.");
-        List<BookDTO> ListOfAllBooks = bookRepository.findAll().stream().map(this::toDTO).toList();
-        if(ListOfAllBooks.isEmpty()){
+
+        Pageable pageable = PageRequest.of(0, size);
+        List<BookDTO> ListOfBooks;
+
+        if(after == null){
+            logger.info("Listando os 10 primeiros livros.");
+            ListOfBooks = bookRepository.findByOrderByIdAsc(pageable).stream().map(this::toDTO).toList();
+        } else {
+            logger.info("Listando os 10 livros após o ID: {}", after);
+            ListOfBooks = bookRepository.findByBookIdGreaterThanOrderByIdAsc(after, pageable).stream().map(this::toDTO).toList();
+        }
+        if(ListOfBooks.isEmpty()){
             logger.info("Nenhum livro encontrado no sistema.");
             return ResponseEntity.notFound().build();
         }
-        logger.info("Encontrados {} livros no sistema.", ListOfAllBooks.size());
-        return ResponseEntity.ok(ListOfAllBooks);
+
+        logger.info("Encontrados {} livros no sistema.", ListOfBooks.size());
+        return ResponseEntity.ok(ListOfBooks);
     }
 
 

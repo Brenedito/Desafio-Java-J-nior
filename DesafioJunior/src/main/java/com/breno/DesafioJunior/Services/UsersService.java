@@ -22,20 +22,29 @@ public class UsersService {
     private UserRepository userRepository;
 
     public ResponseEntity<List<UserDTO>> ListAllUsers(){
+        logger.info("Buscando todos os usuários registrados.");
         List<UserDTO> AllUsers = userRepository.findAll().stream().map(this::toDTO).toList();
         if(AllUsers.isEmpty()){
+            logger.info("Nenhum usuário encontrado no sistema.");
             return ResponseEntity.noContent().build();
         }
+        logger.info("Encontrados {} usuários no sistema.", AllUsers.size());
         return ResponseEntity.ok(AllUsers);
     }
 
     public ResponseEntity<UserDTO> FindUserById(Long id){
+        logger.info("Buscando usuário com ID: {}", id);
         UserDTO User = userRepository.findById(id).map(this::toDTO).orElse(null);
-        return ResponseEntity.ok(User);
+        if(User != null){
+            logger.info("Usuário com ID: {} encontrado.", id);
+            return ResponseEntity.ok(User);
+        }
+        logger.warn("Usuário com ID: {} não encontrado.", id);
+        return ResponseEntity.notFound().build();
     }
 
     public ResponseEntity<UserDTO> RegisterNewUser(UserDTO userDTO){
-
+        logger.info("Registrando novo usuário com os seguintes dados, nome: {} email: {} cpf: {}", userDTO.name(), userDTO.email(), userDTO.cpf());
         UserModel RegisteredUser = new UserModel(
                 userDTO.name(),
                 userDTO.email(),
@@ -43,34 +52,41 @@ public class UsersService {
                 LocalDateTime.now(),
                 UserENUM.valueOf(String.valueOf(userDTO.status()))
         );
-        userRepository.save(RegisteredUser);
 
-        //Adicionar Verificações de validação e tratamento de erros
+        userRepository.save(RegisteredUser);
+        logger.info("Usuário {} registrado com sucesso.", RegisteredUser);
         return ResponseEntity.ok(toDTO(RegisteredUser));
 
     }
 
     public ResponseEntity<UserDTO> UpdateUserInfo(Long id, UserDTO NewUserInfo){
+        logger.info("Atualizando informações do usuário com ID: {}", id);
         UserModel OldUserInfo = userRepository.findById(id).orElse(null);
 
         //É possivel diminuir os if's Usando o Mapper
         if(OldUserInfo == null){
+            logger.info("Usuário com ID: {} não encontrado.", id);
             return ResponseEntity.notFound().build();
         }
         if(NewUserInfo.name() != null){
+            logger.info("Atualizando nome do usuário com ID: {} para {}", id, NewUserInfo.name());
             OldUserInfo.setName(NewUserInfo.name());
         }
         if(NewUserInfo.email() != null){
+            logger.info("Atualizando email do usuário com ID: {} para {}", id, NewUserInfo.email());
             OldUserInfo.setEmail(NewUserInfo.email());
         }
         if(NewUserInfo.cpf() != null){
+            logger.info("Atualizando CPF do usuário com ID: {} para {}", id, NewUserInfo.cpf());
             OldUserInfo.setCpf(NewUserInfo.cpf());
         }
         if(NewUserInfo.status() != null){
+            logger.info("Atualizando status do usuário com ID: {} para {}", id, NewUserInfo.status());
             OldUserInfo.setStatus(NewUserInfo.status());
         }
 
         userRepository.save(OldUserInfo);
+        logger.info("Informações do usuário com ID: {} atualizadas com sucesso.", id);
         return ResponseEntity.ok(toDTO(OldUserInfo));
     }
 

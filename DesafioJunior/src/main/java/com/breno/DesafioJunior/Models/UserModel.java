@@ -37,7 +37,7 @@ public class UserModel {
     @Column(nullable = false)
     private LocalDateTime registration_date;
 
-
+    @Enumerated(EnumType.STRING)
     @Column(nullable = true)
     private UserENUM status = UserENUM.ATIVO;
 

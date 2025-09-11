@@ -47,7 +47,7 @@ public class BookModel {
     @Min(value = 0, message = "A quantidade disponível não pode ser negativa.")
     private Integer available_quantity;
 
-
+    @Enumerated(EnumType.STRING)
     @Column(nullable = true)
     private BookENUM status;
 

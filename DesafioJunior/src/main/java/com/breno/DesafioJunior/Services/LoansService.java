@@ -1,9 +1,11 @@
 package com.breno.DesafioJunior.Services;
 
-import com.breno.DesafioJunior.Dtos.BookDTO;
 import com.breno.DesafioJunior.Dtos.LoanDTO;
 import com.breno.DesafioJunior.Enums.BookENUM;
 import com.breno.DesafioJunior.Enums.LoanENUM;
+import com.breno.DesafioJunior.Enums.UserENUM;
+import com.breno.DesafioJunior.Exceptions.AvailabilityException;
+import com.breno.DesafioJunior.Exceptions.ResourceNotFoundException;
 import com.breno.DesafioJunior.Models.BookModel;
 import com.breno.DesafioJunior.Models.LoanModel;
 import com.breno.DesafioJunior.Models.UserModel;
@@ -45,22 +47,22 @@ public class LoansService {
         if(after == null){
             ListOfLoans = loanRepository.findByOrderByIdAsc(pageable).stream().map(this::toDTO).toList();
             if(ListOfLoans.isEmpty()){
-                logger.info("Nenhum livro encontrado no sistema.");
-                return ResponseEntity.notFound().build();
+                logger.info("Nenhum empréstimo encontrado no sistema.");
+                throw new ResourceNotFoundException("Nenhum empréstimo encontrado no sistema");
             } else {
-                logger.info("Listando os 10 primeiros livros.");
+                logger.info("Listando os 10 primeiros empréstimos.");
             }
         } else {
             ListOfLoans = loanRepository.findByLoanIdGreaterThanOrderByIdAsc(after, pageable).stream().map(this::toDTO).toList();
             if(ListOfLoans.isEmpty()){
                 logger.info("Nenhum livro encontrado no sistema.");
-                return ResponseEntity.notFound().build();
+                throw new ResourceNotFoundException("Nenhum empréstimo encontrado no sistema apos o ID: " + after);
             }else {
-                logger.info("Listando os 10 livros após o ID: {}", after);
+                logger.info("Listando os 10 empréstimos após o ID: {}", after);
             }
         }
 
-        logger.info("Encontrados {} livros no sistema.", ListOfLoans.size());
+        logger.info("Encontrados {} empréstimos no sistema.", ListOfLoans.size());
         return ResponseEntity.ok(ListOfLoans);
     }
 
@@ -68,8 +70,8 @@ public class LoansService {
         logger.info("Buscando empréstimos para o usuário com ID: {}", id);
         List<LoanDTO> AllUserLoans = loanRepository.FindAllLoansByUserId(id).stream().map(this::toDTO).toList();
         if(AllUserLoans.isEmpty()){
-            logger.info("Nenhum empréstimo encontrado para o usuário com ID: " + id);
-            return ResponseEntity.notFound().build();
+            logger.info("Nenhum empréstimo encontrado para o usuário com ID: {}", id);
+            throw new ResourceNotFoundException("Nenhum empréstimo encontrado para o usuário com ID: " + id);
         }
         logger.info("Empréstimos encontrados para o usuário com ID: {} ", id);
         return ResponseEntity.ok(AllUserLoans);
@@ -82,19 +84,25 @@ public class LoansService {
 
         if(book == null || user == null){
             logger.warn("Falha ao registrar empréstimo: Livro ou usuário não encontrado.");
-            return ResponseEntity.notFound().build();
+            throw new ResourceNotFoundException("Livro ou usuário não encontrado.");
         }
-
-        if(book.getAvailable_quantity() < 1 || book.getStatus().equals(BookENUM.INDISPONIVEL)) {
+        if(user.getStatus() == UserENUM.INATIVO) {
+            logger.warn("Falha ao registrar empréstimo: Usuário inativo.");
+            throw new AvailabilityException("Usuário inativo.");
+        }
+        if(book.getAvailable_quantity() < 1 || book.getStatus() == BookENUM.INDISPONIVEL) {
             logger.warn("Falha ao registrar empréstimo: Livro indisponível.");
             book.setStatus(BookENUM.INDISPONIVEL);
-            return ResponseEntity.badRequest().build();
+            throw new AvailabilityException("Livro indisponível.");
         } else if (loanRepository.countByUserId(user.getUser_id()) >= 3) {
             logger.warn("Falha ao registrar empréstimo: Usuário atingiu o limite de empréstimos.");
-            return ResponseEntity.badRequest().build();
+            throw new AvailabilityException("Usuário atingiu o limite de empréstimos.");
         }
 
         book.setAvailable_quantity(book.getAvailable_quantity() - 1);
+        if(book.getAvailable_quantity() == 0){
+            book.setStatus(BookENUM.INDISPONIVEL);
+        }
         bookReposiroty.save(book);
 
         LoanModel RegisteredLoan = new LoanModel(
@@ -116,19 +124,29 @@ public class LoansService {
         LoanModel ExistingLoan = loanRepository.findById(id).orElse(null);
             if(ExistingLoan != null) {
                 BookModel book = ExistingLoan.getBook();
+
                 book.setAvailable_quantity(book.getAvailable_quantity() + 1);
                 book.setStatus(BookENUM.DISPONIVEL);
+
                 bookReposiroty.save(book);
 
+
                 ExistingLoan.setActual_return_date(LocalDate.now());
-                ExistingLoan.setStatus(LoanENUM.DEVOLVIDO);
+                if(ExistingLoan.getActual_return_date().isAfter(ExistingLoan.getReturn_date())){
+                    ExistingLoan.setStatus(LoanENUM.ATRASADO);
+                    logger.info("Empréstimo devolvido com atraso.");
+                } else {
+                    ExistingLoan.setStatus(LoanENUM.DEVOLVIDO);
+                    logger.info("Empréstimo devolvido no prazo.");
+                }
 
                 loanRepository.save(ExistingLoan);
                 logger.info("Devolução registrada com sucesso para o empréstimo com ID: {}", id);
                 return ResponseEntity.ok(toDTO(ExistingLoan));
+            }else {
+                logger.warn("Empréstimo não encontrado");
+                throw new ResourceNotFoundException("Empréstimo com ID: " + id + " não encontrado.");
             }
-        logger.warn("Empréstimo não encontrado");
-        return ResponseEntity.notFound().build();
     }
 
     public LoanDTO toDTO(LoanModel model) {

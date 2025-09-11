@@ -1,8 +1,9 @@
 package com.breno.DesafioJunior.Services;
 
-import com.breno.DesafioJunior.Dtos.BookDTO;
 import com.breno.DesafioJunior.Dtos.UserDTO;
 import com.breno.DesafioJunior.Enums.UserENUM;
+import com.breno.DesafioJunior.Exceptions.DataIntegrityException;
+import com.breno.DesafioJunior.Exceptions.ResourceNotFoundException;
 import com.breno.DesafioJunior.Models.UserModel;
 import com.breno.DesafioJunior.Repositories.UserRepository;
 import org.slf4j.Logger;
@@ -33,18 +34,18 @@ public class UsersService {
         if(after == null){
             ListOfUsers = userRepository.findByOrderByIdAsc(pageable).stream().map(this::toDTO).toList();
             if(ListOfUsers.isEmpty()){
-                logger.info("Nenhum livro encontrado no sistema.");
-                return ResponseEntity.notFound().build();
+                logger.info("Nenhum usuário encontrado no sistema.");
+                throw new ResourceNotFoundException("Nenhum usuário encontrado no sistema.");
             } else {
-                logger.info("Listando os 10 primeiros livros.");
+                logger.info("Listando os 10 primeiros usuários.");
             }
         } else {
             ListOfUsers = userRepository.findByUserIdGreaterThanOrderByIdAsc(after, pageable).stream().map(this::toDTO).toList();
             if(ListOfUsers.isEmpty()){
-                logger.info("Nenhum livro encontrado no sistema.");
-                return ResponseEntity.notFound().build();
+                logger.info("Nenhum usuário encontrado no sistema.");
+                throw new ResourceNotFoundException("Nenhum usuário encontrado apos o ID: " + after);
             }else {
-                logger.info("Listando os 10 livros após o ID: {}", after);
+                logger.info("Listando os 10 usuários após o ID: {}", after);
             }
         }
 
@@ -58,9 +59,10 @@ public class UsersService {
         if(User != null){
             logger.info("Usuário com ID: {} encontrado.", id);
             return ResponseEntity.ok(User);
+        }else {
+            logger.warn("Usuário com ID: {} não encontrado.", id);
+            throw new ResourceNotFoundException("Nenhum usuário com ID " + id + " cadastrados no sistema.");
         }
-        logger.warn("Usuário com ID: {} não encontrado.", id);
-        return ResponseEntity.notFound().build();
     }
 
     public ResponseEntity<UserDTO> RegisterNewUser(UserDTO userDTO){
@@ -72,6 +74,14 @@ public class UsersService {
                 LocalDateTime.now(),
                 UserENUM.ATIVO
         );
+        if(userRepository.existsByEmail(userDTO.email())){
+            logger.warn("Falha ao registrar usuário: Email {} já está em uso.", userDTO.email());
+            throw new DataIntegrityException("Email " + userDTO.email() + " já está em uso.");
+        }
+        if(userRepository.existsByCpf(userDTO.cpf())){
+            logger.warn("Falha ao registrar usuário: CPF {} já está em uso.", userDTO.cpf());
+            throw new DataIntegrityException("CPF " + userDTO.cpf() + " já está em uso.");
+        }
 
         userRepository.save(RegisteredUser);
         logger.info("Usuário {} registrado com sucesso.", RegisteredUser);
@@ -86,17 +96,25 @@ public class UsersService {
         //É possivel diminuir os if's Usando o Mapper
         if(OldUserInfo == null){
             logger.info("Usuário com ID: {} não encontrado.", id);
-            return ResponseEntity.notFound().build();
+            throw new ResourceNotFoundException("Nenhum usuário com ID " + id + " cadastrados no sistema.");
         }
         if(NewUserInfo.name() != null){
             logger.info("Atualizando nome do usuário com ID: {} para {}", id, NewUserInfo.name());
             OldUserInfo.setName(NewUserInfo.name());
         }
         if(NewUserInfo.email() != null){
+            if(userRepository.existsByEmail(NewUserInfo.email())){
+                logger.warn("Falha ao atualizar email: Email {} já está em uso.", NewUserInfo.email());
+                throw new DataIntegrityException("Email " + NewUserInfo.email() + " já está em uso.");
+            }
             logger.info("Atualizando email do usuário com ID: {} para {}", id, NewUserInfo.email());
             OldUserInfo.setEmail(NewUserInfo.email());
         }
         if(NewUserInfo.cpf() != null){
+            if(userRepository.existsByCpf(NewUserInfo.cpf())){
+                logger.warn("Falha ao atualizar CPF: CPF {} já está em uso.", NewUserInfo.cpf());
+                throw new DataIntegrityException("CPF " + NewUserInfo.cpf() + " já está em uso.");
+            }
             logger.info("Atualizando CPF do usuário com ID: {} para {}", id, NewUserInfo.cpf());
             OldUserInfo.setCpf(NewUserInfo.cpf()); //CPF não deve ser atualizado em um sistema real
         }

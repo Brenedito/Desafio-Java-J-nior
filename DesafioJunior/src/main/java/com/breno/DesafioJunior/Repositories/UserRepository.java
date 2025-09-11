@@ -17,4 +17,8 @@ public interface UserRepository extends JpaRepository<UserModel, Long> {
 
     @Query("SELECT users FROM UserModel users WHERE users.user_id > :after ORDER BY users.user_id ASC")
     List<UserModel> findByUserIdGreaterThanOrderByIdAsc(@Param("after") Long after, @Param("pageable") Pageable pageable);
+
+    boolean existsByEmail(String email);
+
+    boolean existsByCpf(String cpf);
 }

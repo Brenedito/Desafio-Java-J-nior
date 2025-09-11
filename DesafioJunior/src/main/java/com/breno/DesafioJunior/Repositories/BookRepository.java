@@ -17,4 +17,6 @@ public interface BookRepository extends JpaRepository<BookModel, Long> {
 
     @Query("SELECT books FROM BookModel books WHERE books.book_id > :after ORDER BY books.book_id ASC")
     List<BookModel> findByBookIdGreaterThanOrderByIdAsc(@Param("after") Long after,@Param("pageable") Pageable pageable);
+
+    boolean existsByIsbn(String isbn);
 }

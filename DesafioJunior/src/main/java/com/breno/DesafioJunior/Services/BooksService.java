@@ -2,6 +2,8 @@ package com.breno.DesafioJunior.Services;
 
 import com.breno.DesafioJunior.Dtos.BookDTO;
 import com.breno.DesafioJunior.Enums.BookENUM;
+import com.breno.DesafioJunior.Exceptions.DataIntegrityException;
+import com.breno.DesafioJunior.Exceptions.ResourceNotFoundException;
 import com.breno.DesafioJunior.Models.BookModel;
 import com.breno.DesafioJunior.Repositories.BookRepository;
 import org.slf4j.Logger;
@@ -33,7 +35,7 @@ public class BooksService {
             ListOfBooks = bookRepository.findByOrderByIdAsc(pageable).stream().map(this::toDTO).toList();
             if(ListOfBooks.isEmpty()){
                 logger.info("Nenhum livro encontrado no sistema.");
-                return ResponseEntity.notFound().build();
+                throw new ResourceNotFoundException("Nenhum livro encontrado no sistema.");
             } else {
                 logger.info("Listando os 10 primeiros livros.");
             }
@@ -41,12 +43,11 @@ public class BooksService {
             ListOfBooks = bookRepository.findByBookIdGreaterThanOrderByIdAsc(after, pageable).stream().map(this::toDTO).toList();
             if(ListOfBooks.isEmpty()){
                 logger.info("Nenhum livro encontrado no sistema.");
-                return ResponseEntity.notFound().build();
+                throw new ResourceNotFoundException("Nenhum livro encontrado apos o ID: " + after);
             }else {
                 logger.info("Listando os 10 livros após o ID: {}", after);
             }
         }
-
 
         logger.info("Encontrados {} livros no sistema.", ListOfBooks.size());
         return ResponseEntity.ok(ListOfBooks);
@@ -58,7 +59,7 @@ public class BooksService {
         List<BookDTO> UniqueBook = bookRepository.findById(id).stream().map(this::toDTO).toList();
         if(UniqueBook.isEmpty()){
             logger.warn("Livro com ID: {} não encontrado no sistema.", id);
-            return ResponseEntity.notFound().build();
+            throw new ResourceNotFoundException("Nenhum livro encontrado no sistema.");
         }
         logger.info("Livro com ID: {} encontrado.", id);
         return ResponseEntity.ok(UniqueBook);
@@ -66,6 +67,10 @@ public class BooksService {
 
     public ResponseEntity<BookDTO> RegisterNewBook(BookDTO bookDTO){
         logger.info("Registrando novo livro com os seguintes dados, título: {} autor: {} isbn: {}", bookDTO.title(), bookDTO.author(), bookDTO.isbn());
+        if(bookRepository.existsByIsbn(bookDTO.isbn())){
+            logger.warn("Falha ao registrar livro: ISBN {} já existe no sistema.", bookDTO.isbn());
+            throw new DataIntegrityException("ISBN " + bookDTO.isbn() + " já existe no sistema.");
+        }
         BookModel RegisteredBook = new BookModel(
                 bookDTO.title(),
                 bookDTO.author(),
@@ -88,7 +93,7 @@ public class BooksService {
         //É possível diminuir evitar esses if's usando um Mapper
         if (OldBookInfo == null) {
             logger.info("Livro com ID: {} não encontrado.", id);
-            return ResponseEntity.notFound().build();
+            throw new ResourceNotFoundException("Livro com ID: " + id + " não encontrado.");
         }
         if(NewBookInfo.title() != null){
             logger.info("Atualizando título do livro com ID: {} para {}", id, NewBookInfo.title());
@@ -99,6 +104,10 @@ public class BooksService {
             OldBookInfo.setAuthor(NewBookInfo.author());
         }
         if(NewBookInfo.isbn() != null){
+            if(bookRepository.existsByIsbn(NewBookInfo.isbn())){
+                logger.warn("Falha ao atualizar ISBN: ISBN {} já existe no sistema.", NewBookInfo.isbn());
+                throw new DataIntegrityException("ISBN " + NewBookInfo.isbn() + " já existe no sistema.");
+            }
             logger.info("Atualizando ISBN do livro com ID: {} para {}", id, NewBookInfo.isbn());
             OldBookInfo.setIsbn(NewBookInfo.isbn());
         }
@@ -133,7 +142,7 @@ public class BooksService {
             return ResponseEntity.ok().build();
         } else {
             logger.warn("Livro com ID: {} não encontrado.", id);
-            return ResponseEntity.notFound().build();
+            throw new ResourceNotFoundException("Livro com ID: " + id + " não encontrado.");
         }
     }
 

@@ -2,7 +2,6 @@ package com.breno.DesafioJunior.Repositories;
 
 
 import com.breno.DesafioJunior.Models.LoanModel;
-import com.breno.DesafioJunior.Models.UserModel;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;

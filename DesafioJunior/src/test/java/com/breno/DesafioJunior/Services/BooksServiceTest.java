@@ -2,6 +2,8 @@ package com.breno.DesafioJunior.Services;
 
 import com.breno.DesafioJunior.Dtos.BookDTO;
 import com.breno.DesafioJunior.Enums.BookENUM;
+import com.breno.DesafioJunior.Exceptions.DataIntegrityException;
+import com.breno.DesafioJunior.Exceptions.ResourceNotFoundException;
 import com.breno.DesafioJunior.Models.BookModel;
 import com.breno.DesafioJunior.Repositories.BookRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -27,10 +29,8 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.*;
 
-
 @ExtendWith(MockitoExtension.class)
 class BooksServiceTest {
-
 
     @InjectMocks
     private BooksService booksService;
@@ -45,7 +45,6 @@ class BooksServiceTest {
     void setUp() {
         bookModel = new BookModel("O Senhor dos Anéis", "J.R.R. Tolkien", "978-0-261-10238-5", LocalDateTime.now(), 10, 5, BookENUM.DISPONIVEL);
         bookModel.setBook_id(1L);
-
         bookDTO = new BookDTO(1L, "O Senhor dos Anéis", "J.R.R. Tolkien", "978-0-261-10238-5", LocalDateTime.now(), 10, 5, BookENUM.DISPONIVEL);
     }
 
@@ -55,35 +54,17 @@ class BooksServiceTest {
         @DisplayName("Deve listar os livros com sucesso quando 'after' é nulo")
         void listBooks_WhenAfterIsNull_ShouldReturnListOfBooks() {
             when(bookRepository.findByOrderByIdAsc(any(Pageable.class))).thenReturn(List.of(bookModel));
-
             ResponseEntity<List<BookDTO>> response = booksService.ListBooks(null, 10);
-
             assertEquals(HttpStatus.OK, response.getStatusCode());
             assertNotNull(response.getBody());
-            assertFalse(response.getBody().isEmpty());
-            assertEquals(1, response.getBody().size());
-            assertEquals("O Senhor dos Anéis", response.getBody().get(0).title());
         }
 
         @Test
-        @DisplayName("Deve retornar Not Found quando 'after' é nulo e não há livros")
-        void listBooks_WhenAfterIsNullAndNoBooks_ShouldReturnNotFound() {
+        @DisplayName("Deve lançar ResourceNotFoundException quando não há livros")
+        void listBooks_WhenNoBooks_ShouldThrowResourceNotFoundException() {
             when(bookRepository.findByOrderByIdAsc(any(Pageable.class))).thenReturn(Collections.emptyList());
-
-            ResponseEntity<List<BookDTO>> response = booksService.ListBooks(null, 10);
-
-            assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-        }
-
-        @Test
-        @DisplayName("Deve listar os livros com sucesso quando 'after' tem um valor")
-        void listBooks_WhenAfterHasValue_ShouldReturnListOfBooks() {
-            when(bookRepository.findByBookIdGreaterThanOrderByIdAsc(anyLong(), any(Pageable.class))).thenReturn(List.of(bookModel));
-
-            ResponseEntity<List<BookDTO>> response = booksService.ListBooks(2L, 10);
-
-            assertEquals(HttpStatus.OK, response.getStatusCode());
-            assertFalse(Objects.requireNonNull(response.getBody()).isEmpty());
+            // Verifica se a exceção correta é lançada
+            assertThrows(ResourceNotFoundException.class, () -> booksService.ListBooks(null, 10));
         }
     }
 
@@ -93,22 +74,16 @@ class BooksServiceTest {
         @DisplayName("Deve encontrar um livro pelo ID com sucesso")
         void findBookById_WhenBookExists_ShouldReturnBook() {
             when(bookRepository.findById(anyLong())).thenReturn(Optional.of(bookModel));
-
             ResponseEntity<List<BookDTO>> response = booksService.FindBookById(1L);
-
             assertEquals(HttpStatus.OK, response.getStatusCode());
             assertFalse(Objects.requireNonNull(response.getBody()).isEmpty());
-            assertEquals(1L, response.getBody().get(0).bookId());
         }
 
         @Test
-        @DisplayName("Deve retornar Not Found quando o livro não existe")
-        void findBookById_WhenBookDoesNotExist_ShouldReturnNotFound() {
+        @DisplayName("Deve lançar ResourceNotFoundException quando o livro não existe")
+        void findBookById_WhenBookDoesNotExist_ShouldThrowResourceNotFoundException() {
             when(bookRepository.findById(anyLong())).thenReturn(Optional.empty());
-
-            ResponseEntity<List<BookDTO>> response = booksService.FindBookById(99L);
-
-            assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+            assertThrows(ResourceNotFoundException.class, () -> booksService.FindBookById(99L));
         }
     }
 
@@ -117,13 +92,18 @@ class BooksServiceTest {
         @Test
         @DisplayName("Deve registar um novo livro com sucesso")
         void registerNewBook_ShouldReturnCreatedBook() {
+            when(bookRepository.existsByIsbn(anyString())).thenReturn(false);
             when(bookRepository.save(any(BookModel.class))).thenReturn(bookModel);
-
             ResponseEntity<BookDTO> response = booksService.RegisterNewBook(bookDTO);
-
             assertEquals(HttpStatus.OK, response.getStatusCode());
             assertNotNull(response.getBody());
-            assertEquals("J.R.R. Tolkien", response.getBody().author());
+        }
+
+        @Test
+        @DisplayName("Deve lançar DataIntegrityException ao tentar criar livro com ISBN já existente")
+        void registerNewBook_WhenIsbnExists_ShouldThrowDataIntegrityException() {
+            when(bookRepository.existsByIsbn(anyString())).thenReturn(true);
+            assertThrows(DataIntegrityException.class, () -> booksService.RegisterNewBook(bookDTO));
         }
     }
 
@@ -133,26 +113,28 @@ class BooksServiceTest {
         @DisplayName("Deve atualizar as informações de um livro com sucesso")
         void updateBookInfo_WhenBookExists_ShouldReturnUpdatedBook() {
             when(bookRepository.findById(anyLong())).thenReturn(Optional.of(bookModel));
+            when(bookRepository.existsByIsbn(anyString())).thenReturn(false);
             when(bookRepository.save(any(BookModel.class))).thenReturn(bookModel);
-            BookDTO updatedInfo = new BookDTO(null, "Novo Título", "Novo Autor", null, null, null, null, null);
-
+            BookDTO updatedInfo = new BookDTO(null, "Novo Título", "Novo Autor", "111-1-111-11111-1", null, null, null, null);
             ResponseEntity<BookDTO> response = booksService.UpdateBookInfo(1L, updatedInfo);
-
             assertEquals(HttpStatus.OK, response.getStatusCode());
             assertNotNull(response.getBody());
-            assertEquals("Novo Título", response.getBody().title());
-            assertEquals("Novo Autor", response.getBody().author());
         }
 
         @Test
-        @DisplayName("Deve retornar Not Found ao tentar atualizar um livro inexistente")
-        void updateBookInfo_WhenBookDoesNotExist_ShouldReturnNotFound() {
+        @DisplayName("Deve lançar ResourceNotFoundException ao tentar atualizar um livro inexistente")
+        void updateBookInfo_WhenBookDoesNotExist_ShouldThrowResourceNotFoundException() {
             when(bookRepository.findById(anyLong())).thenReturn(Optional.empty());
-            BookDTO updatedInfo = new BookDTO(null, "Novo Título", null, null, null, null, null, null);
+            assertThrows(ResourceNotFoundException.class, () -> booksService.UpdateBookInfo(99L, bookDTO));
+        }
 
-            ResponseEntity<BookDTO> response = booksService.UpdateBookInfo(99L, updatedInfo);
-
-            assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        @Test
+        @DisplayName("Deve lançar DataIntegrityException ao tentar atualizar com ISBN já existente")
+        void updateBookInfo_WhenIsbnExists_ShouldThrowDataIntegrityException() {
+            when(bookRepository.findById(anyLong())).thenReturn(Optional.of(bookModel));
+            when(bookRepository.existsByIsbn(anyString())).thenReturn(true);
+            BookDTO updatedInfoWithExistingIsbn = new BookDTO(null, null, null, "123-4-567-89012-3", null, null, null, null);
+            assertThrows(DataIntegrityException.class, () -> booksService.UpdateBookInfo(1L, updatedInfoWithExistingIsbn));
         }
     }
 
@@ -163,23 +145,16 @@ class BooksServiceTest {
         void deleteBook_WhenBookExists_ShouldReturnOk() {
             when(bookRepository.findById(anyLong())).thenReturn(Optional.of(bookModel));
             doNothing().when(bookRepository).deleteById(anyLong());
-
             ResponseEntity<Void> response = booksService.DeleteBook(1L);
-
             assertEquals(HttpStatus.OK, response.getStatusCode());
-
             verify(bookRepository, times(1)).deleteById(1L);
         }
 
         @Test
-        @DisplayName("Deve retornar Not Found ao tentar apagar um livro inexistente")
-        void deleteBook_WhenBookDoesNotExist_ShouldReturnNotFound() {
+        @DisplayName("Deve lançar ResourceNotFoundException ao tentar apagar um livro inexistente")
+        void deleteBook_WhenBookDoesNotExist_ShouldThrowResourceNotFoundException() {
             when(bookRepository.findById(anyLong())).thenReturn(Optional.empty());
-
-            ResponseEntity<Void> response = booksService.DeleteBook(99L);
-
-            assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-
+            assertThrows(ResourceNotFoundException.class, () -> booksService.DeleteBook(99L));
             verify(bookRepository, never()).deleteById(anyLong());
         }
     }

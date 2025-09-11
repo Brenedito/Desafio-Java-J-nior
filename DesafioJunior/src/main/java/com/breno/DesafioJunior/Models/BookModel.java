@@ -30,7 +30,7 @@ public class BookModel {
     private String author;
 
 
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String isbn;
 
 

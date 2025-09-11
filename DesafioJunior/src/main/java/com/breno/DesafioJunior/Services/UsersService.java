@@ -31,15 +31,21 @@ public class UsersService {
         List<UserDTO> ListOfUsers;
 
         if(after == null){
-            logger.info("Listando os 10 primeiros usuários.");
             ListOfUsers = userRepository.findByOrderByIdAsc(pageable).stream().map(this::toDTO).toList();
+            if(ListOfUsers.isEmpty()){
+                logger.info("Nenhum livro encontrado no sistema.");
+                return ResponseEntity.notFound().build();
+            } else {
+                logger.info("Listando os 10 primeiros livros.");
+            }
         } else {
-            logger.info("Listando os 10 usuários após o ID: {}", after);
             ListOfUsers = userRepository.findByUserIdGreaterThanOrderByIdAsc(after, pageable).stream().map(this::toDTO).toList();
-        }
-        if(ListOfUsers.isEmpty()){
-            logger.info("Nenhum usuário encontrado no sistema.");
-            return ResponseEntity.notFound().build();
+            if(ListOfUsers.isEmpty()){
+                logger.info("Nenhum livro encontrado no sistema.");
+                return ResponseEntity.notFound().build();
+            }else {
+                logger.info("Listando os 10 livros após o ID: {}", after);
+            }
         }
 
         logger.info("Encontrados {} usuários no sistema.", ListOfUsers.size());

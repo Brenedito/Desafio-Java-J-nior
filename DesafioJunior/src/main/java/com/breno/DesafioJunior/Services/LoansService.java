@@ -42,15 +42,21 @@ public class LoansService {
         List<LoanDTO> ListOfLoans;
 
         if(after == null){
-            logger.info("Listando os 10 primeiros empréstimos.");
             ListOfLoans = loanRepository.findByOrderByIdAsc(pageable).stream().map(this::toDTO).toList();
+            if(ListOfLoans.isEmpty()){
+                logger.info("Nenhum livro encontrado no sistema.");
+                return ResponseEntity.notFound().build();
+            } else {
+                logger.info("Listando os 10 primeiros livros.");
+            }
         } else {
-            logger.info("Listando os 10 empréstimos após o ID: {}", after);
             ListOfLoans = loanRepository.findByLoanIdGreaterThanOrderByIdAsc(after, pageable).stream().map(this::toDTO).toList();
-        }
-        if(ListOfLoans.isEmpty()){
-            logger.info("Nenhum empréstimo encontrado no sistema.");
-            return ResponseEntity.notFound().build();
+            if(ListOfLoans.isEmpty()){
+                logger.info("Nenhum livro encontrado no sistema.");
+                return ResponseEntity.notFound().build();
+            }else {
+                logger.info("Listando os 10 livros após o ID: {}", after);
+            }
         }
 
         logger.info("Encontrados {} livros no sistema.", ListOfLoans.size());
@@ -97,10 +103,10 @@ public class LoansService {
                 null,
                 LoanENUM.ATIVO
         );
+        LoanModel savedLoan = loanRepository.save(RegisteredLoan);
 
-        loanRepository.save(RegisteredLoan);
         logger.info("Empréstimo registrado com sucesso para o usuário de ID: {} e livro de ID: {}", loanDTO.userid(), loanDTO.bookid());
-        return ResponseEntity.ok(toDTO(RegisteredLoan));
+        return ResponseEntity.ok(toDTO(savedLoan));
     }
 
     public ResponseEntity<LoanDTO> RegisterLoanReturn(Long id){

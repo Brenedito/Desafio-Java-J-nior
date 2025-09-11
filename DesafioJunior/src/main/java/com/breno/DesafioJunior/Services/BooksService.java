@@ -24,22 +24,29 @@ public class BooksService {
     private BookRepository bookRepository;
 
     public ResponseEntity<List<BookDTO>> ListBooks(Long after, int size){
-        logger.info("Buscando todos os livros registrados.");
+        logger.info("Buscando os livros registrados.");
 
         Pageable pageable = PageRequest.of(0, size);
         List<BookDTO> ListOfBooks;
 
         if(after == null){
-            logger.info("Listando os 10 primeiros livros.");
             ListOfBooks = bookRepository.findByOrderByIdAsc(pageable).stream().map(this::toDTO).toList();
+            if(ListOfBooks.isEmpty()){
+                logger.info("Nenhum livro encontrado no sistema.");
+                return ResponseEntity.notFound().build();
+            } else {
+                logger.info("Listando os 10 primeiros livros.");
+            }
         } else {
-            logger.info("Listando os 10 livros após o ID: {}", after);
             ListOfBooks = bookRepository.findByBookIdGreaterThanOrderByIdAsc(after, pageable).stream().map(this::toDTO).toList();
+            if(ListOfBooks.isEmpty()){
+                logger.info("Nenhum livro encontrado no sistema.");
+                return ResponseEntity.notFound().build();
+            }else {
+                logger.info("Listando os 10 livros após o ID: {}", after);
+            }
         }
-        if(ListOfBooks.isEmpty()){
-            logger.info("Nenhum livro encontrado no sistema.");
-            return ResponseEntity.notFound().build();
-        }
+
 
         logger.info("Encontrados {} livros no sistema.", ListOfBooks.size());
         return ResponseEntity.ok(ListOfBooks);

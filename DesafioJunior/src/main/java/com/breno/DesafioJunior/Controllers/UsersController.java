@@ -2,8 +2,7 @@ package com.breno.DesafioJunior.Controllers;
 
 import com.breno.DesafioJunior.Dtos.UserDTO;
 import com.breno.DesafioJunior.Services.UsersService;
-import com.breno.DesafioJunior.ValidationGroups.OnCreate;
-import com.breno.DesafioJunior.ValidationGroups.OnUpdate;
+import com.breno.DesafioJunior.Utils.ValidationGroups;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -50,7 +49,7 @@ public class UsersController {
             @ApiResponse(responseCode="400", description="Requisição inválida")
     })
     @PostMapping
-    public ResponseEntity<UserDTO> RegisterNewUser(@Validated(OnCreate.class) @RequestBody UserDTO userDTO) {
+    public ResponseEntity<UserDTO> RegisterNewUser(@Validated(ValidationGroups.OnCreate.class) @RequestBody UserDTO userDTO) {
         return usersService.RegisterNewUser(userDTO);
     }
 
@@ -61,7 +60,7 @@ public class UsersController {
             @ApiResponse(responseCode="400", description="Requisição inválida")
     })
     @PutMapping("/{id}")
-    public ResponseEntity<UserDTO> UpdateUserInfo(@PathVariable Long id,@Validated(OnUpdate.class) @RequestBody UserDTO user){
+    public ResponseEntity<UserDTO> UpdateUserInfo(@PathVariable Long id, @Validated(ValidationGroups.OnUpdate.class) @RequestBody UserDTO user){
         return usersService.UpdateUserInfo(id, user);
     }
 }

@@ -1,14 +1,12 @@
 package com.breno.DesafioJunior.Models;
 
 import com.breno.DesafioJunior.Enums.UserENUM;
-import com.breno.DesafioJunior.ValidationGroups.OnCreate;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Email;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.validator.constraints.br.CPF;
+
 
 import java.time.LocalDateTime;
 
@@ -29,12 +27,10 @@ public class UserModel {
 
 
     @Column(nullable = false, unique = true)
-    @Email(groups= OnCreate.class, message = "O email informado é inválido.")
     private String email;
 
 
     @Column(nullable = false, unique = true)
-    @CPF(groups= OnCreate.class, message = "O CPF informado é inválido.")
     private String cpf;
 
 

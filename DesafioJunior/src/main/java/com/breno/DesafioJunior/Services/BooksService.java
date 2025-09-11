@@ -73,7 +73,7 @@ public class BooksService {
                 bookDTO.published_date(),
                 bookDTO.total_quantity(),
                 bookDTO.available_quantity(),
-                BookENUM.valueOf(String.valueOf(bookDTO.status()))
+                BookENUM.DISPONIVEL
         );
 
         bookRepository.save(RegisteredBook);

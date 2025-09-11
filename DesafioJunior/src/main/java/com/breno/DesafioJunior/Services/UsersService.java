@@ -70,7 +70,7 @@ public class UsersService {
                 userDTO.email(),
                 userDTO.cpf(),
                 LocalDateTime.now(),
-                UserENUM.valueOf(String.valueOf(userDTO.status()))
+                UserENUM.ATIVO
         );
 
         userRepository.save(RegisteredUser);
@@ -98,7 +98,7 @@ public class UsersService {
         }
         if(NewUserInfo.cpf() != null){
             logger.info("Atualizando CPF do usuário com ID: {} para {}", id, NewUserInfo.cpf());
-            OldUserInfo.setCpf(NewUserInfo.cpf());
+            OldUserInfo.setCpf(NewUserInfo.cpf()); //CPF não deve ser atualizado em um sistema real
         }
         if(NewUserInfo.status() != null){
             logger.info("Atualizando status do usuário com ID: {} para {}", id, NewUserInfo.status());

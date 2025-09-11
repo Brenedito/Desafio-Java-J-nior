@@ -23,16 +23,16 @@ O desafio original, detalhado no arquivo `Desafio.md`, estabeleceu uma série de
 
 ### 🚀 Objetivos Opcionais (Diferenciais)
 
-| Requisito do Desafio Original | Status de Implementação | Detalhes da Implementação |
-|---|---|---|
-| **Nível 1 - Melhorias Básicas** | | |
-| Validação Avançada (Bean Validation, anotações customizadas) | ✅ Concluído | Utilização de Bean Validation com grupos de validação (`OnCreate`, `OnUpdate`). |
-| Tratamento de Exceções (Handler global) | ❌ Não Implementado | Não foi implementado um handler global de exceções. |
+| Requisito do Desafio Original | Status de Implementação | Detalhes da Implementação                                                                                                                                 |
+|---|---|-----------------------------------------------------------------------------------------------------------------------------------------------------------|
+| **Nível 1 - Melhorias Básicas** | |                                                                                                                                                           |
+| Validação Avançada (Bean Validation, anotações customizadas) | ✅ Concluído | Utilização de Bean Validation com grupos de validação (`OnCreate`, `OnUpdate`).                                                                           |
+| Tratamento de Exceções (Handler global) | ✅ Concluído | Implementado um handler global de exceções.                                                                                                               |
 | DTOs (MapStruct para conversões) | ✅ Concluído | DTOs (`BookDTO`, `LoanDTO`, `UserDTO`) utilizados para transferência de dados. Não foi utilizado MapStruct, mas as conversões são realizadas manualmente. |
-| Logs (SLF4J e Logback) | ✅ Concluído | Configuração de logs com SLF4J e Logback, com arquivo de log (`biblioteca-api.log`). |
-| **Nível 3 - Arquitetura e DevOps** | | |
-| Docker (Dockerfile e docker-compose) | ✅ Concluído | `Dockerfile` fornecido para containerização da aplicação. Instruções de uso via Docker serão detalhadas neste README. |
-| Arquitetura (Repository, Service, Controller) | ✅ Concluído | Projeto segue a arquitetura em camadas com `Repository`, `Service` e `Controller` bem definidos. |
+| Logs (SLF4J e Logback) | ✅ Concluído | Configuração de logs com SLF4J e Logback, com arquivo de log (`biblioteca-api.log`).                                                                      |
+| **Nível 3 - Arquitetura e DevOps** | |                                                                                                                                                           |
+| Docker (Dockerfile e docker-compose) | ✅ Concluído | `Dockerfile` fornecido para containerização da aplicação. Instruções de uso via Docker serão detalhadas neste README.                                     |
+| Arquitetura (Repository, Service, Controller) | ✅ Concluído | Projeto segue a arquitetura em camadas com `Repository`, `Service` e `Controller` bem definidos.                                                          |
 
 ## Funcionalidades da API
 

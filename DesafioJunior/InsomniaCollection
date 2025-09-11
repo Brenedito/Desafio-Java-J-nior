@@ -1,0 +1,367 @@
+type: collection.insomnia.rest/5.0
+name: Scratch Pad
+meta:
+  id: wrk_scratchpad
+  created: 1751310926976
+  modified: 1751310926976
+  description: ""
+collection:
+  - name: Books
+    meta:
+      id: fld_6eae3685f1e948f0b8bb08e7126060c8
+      created: 1757356702572
+      modified: 1757356755438
+      sortKey: -1757356729671
+      description: ""
+    children:
+      - url: localhost:8080/api/books?size=10&after=0
+        name: Listar todos os livros
+        meta:
+          id: req_0f435783268d4eb18543413cf36c954a
+          created: 1757353817277
+          modified: 1757624355237
+          isPrivate: false
+          description: ""
+          sortKey: -1757356762862
+        method: GET
+        headers:
+          - name: User-Agent
+            value: insomnia/11.2.0
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: localhost:8080/api/books/3
+        name: Listar livro único pelo ID
+        meta:
+          id: req_e7dc9afb98c44a0794003766f9c5c05f
+          created: 1757356574442
+          modified: 1757624935842
+          isPrivate: false
+          description: ""
+          sortKey: -1757356762812
+        method: GET
+        headers:
+          - name: User-Agent
+            value: insomnia/11.2.0
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: localhost:8080/api/books
+        name: Cadastra um novo livro
+        meta:
+          id: req_4c36ed2c8d984c578eba3184755c0d38
+          created: 1757356637749
+          modified: 1757624373619
+          isPrivate: false
+          description: ""
+          sortKey: -1757356762912
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {
+            		"title": "Uma Odisseia no espaço",
+            		"author": "J.R.R. Tolkien",
+            		"isbn": "988-8595084742",
+            		"published_date": "1937-01-01T00:00:00",
+            		"total_quantity": 8,
+            		"available_quantity": 8
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: User-Agent
+            value: insomnia/11.2.0
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: localhost:8080/api/books/3
+        name: Atualizar Livro
+        meta:
+          id: req_2a896a887e4a4602a91603007a92cfb8
+          created: 1757384847628
+          modified: 1757624949154
+          isPrivate: false
+          description: ""
+          sortKey: -1757384847628
+        method: PUT
+        body:
+          mimeType: application/json
+          text: |-
+            {
+            	"title": "Interestellar",
+            	"isbn": "96-8595084742"
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: User-Agent
+            value: insomnia/11.2.0
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: localhost:8080/api/books/1
+        name: New Request
+        meta:
+          id: req_36dff6e4bec6491c9cc4bec0f079f999
+          created: 1757424738277
+          modified: 1757424746342
+          isPrivate: false
+          description: ""
+          sortKey: -1757424738277
+        method: DELETE
+        headers:
+          - name: User-Agent
+            value: insomnia/11.2.0
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+  - name: Users
+    meta:
+      id: fld_bdfef3e6f43942f3a94d2d233db29f86
+      created: 1757356724296
+      modified: 1757356731008
+      sortKey: -1757353817177
+      description: ""
+    children:
+      - url: localhost:8080/api/users?size=10&after=0
+        name: "Listar todos os usuários "
+        meta:
+          id: req_07acfad8a6db4b16b05a472ff0dfc76e
+          created: 1757425833147
+          modified: 1757624473491
+          isPrivate: false
+          description: ""
+          sortKey: -1757425833147
+        method: GET
+        headers:
+          - name: User-Agent
+            value: insomnia/11.2.0
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: localhost:8080/api/users/1
+        name: Listar usuário único pelo ID
+        meta:
+          id: req_88e64c2c0b3f42c4ae2e0651383940da
+          created: 1757425972298
+          modified: 1757436744071
+          isPrivate: false
+          description: ""
+          sortKey: -1757425972298
+        method: GET
+        headers:
+          - name: User-Agent
+            value: insomnia/11.2.0
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: localhost:8080/api/users
+        name: Cadastrar um novo usuário
+        meta:
+          id: req_31d62291babe4fc1acc992e47cdd940f
+          created: 1757426490501
+          modified: 1757624584998
+          isPrivate: false
+          description: ""
+          sortKey: -1757426490501
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {
+            	"name": "Ana Clara Borges",
+            	"email": "breno.braddadaio@utlook.com",
+            	"cpf": "41691569003"
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: User-Agent
+            value: insomnia/11.2.0
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: localhost:8080/api/users/5
+        name: Atualizar usuário
+        meta:
+          id: req_4282e70c3d79467bb58639358db9b66b
+          created: 1757426592482
+          modified: 1757625004138
+          isPrivate: false
+          description: ""
+          sortKey: -1757426592482
+        method: PUT
+        body:
+          mimeType: application/json
+          text: |-
+            {
+            	"status": "INATIVO"
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: User-Agent
+            value: insomnia/11.2.0
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+  - name: Loans
+    meta:
+      id: fld_471256c57fb047f2a38832c0a1cbaa2f
+      created: 1757356729371
+      modified: 1757625025840
+      sortKey: -1757356729371
+      description: ""
+    children:
+      - url: localhost:8080/api/loans/1/return
+        name: Registrar devolução
+        meta:
+          id: req_061b51640e7a4249bf66d0a831be8a45
+          created: 1757430138307
+          modified: 1757437154242
+          isPrivate: false
+          description: ""
+          sortKey: -1757430138307
+        method: PUT
+        headers:
+          - name: User-Agent
+            value: insomnia/11.2.0
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: localhost:8080/api/loans
+        name: Cadastrar um novo empréstimo
+        meta:
+          id: req_369d298fd4b94e7481f7c2a21a42ea7f
+          created: 1757430141562
+          modified: 1757625053067
+          isPrivate: false
+          description: ""
+          sortKey: -1757430141562
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {
+            	"userid": 1,
+            	"bookid": 1
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: User-Agent
+            value: insomnia/11.2.0
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: localhost:8080/api/loans/user/1
+        name: Listar empréstimo pelo ID do usuário
+        meta:
+          id: req_f71096b3f4ae40d9a10474e3a258addf
+          created: 1757430143120
+          modified: 1757625059241
+          isPrivate: false
+          description: ""
+          sortKey: -1757430143120
+        method: GET
+        headers:
+          - name: User-Agent
+            value: insomnia/11.2.0
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: localhost:8080/api/loans?size=2&after=0
+        name: Listar todos os empréstimos
+        meta:
+          id: req_855be49e3ca445f7914184b5c7a14353
+          created: 1757430195759
+          modified: 1757625039445
+          isPrivate: false
+          description: ""
+          sortKey: -1757430195759
+        method: GET
+        headers:
+          - name: User-Agent
+            value: insomnia/11.2.0
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+cookieJar:
+  name: Default Jar
+  meta:
+    id: jar_99d30891da4bdcebc63947a8fc17f076de878684
+    created: 1751310933813
+    modified: 1751310933813
+environments:
+  name: Base Environment
+  meta:
+    id: env_99d30891da4bdcebc63947a8fc17f076de878684
+    created: 1751310933731
+    modified: 1751310933731
+    isPrivate: false

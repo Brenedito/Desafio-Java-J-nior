@@ -2,6 +2,7 @@ package com.breno.DesafioJunior.Services;
 
 import com.breno.DesafioJunior.Dtos.BookDTO;
 import com.breno.DesafioJunior.Dtos.LoanDTO;
+import com.breno.DesafioJunior.Enums.BookENUM;
 import com.breno.DesafioJunior.Enums.LoanENUM;
 import com.breno.DesafioJunior.Models.BookModel;
 import com.breno.DesafioJunior.Models.LoanModel;
@@ -84,8 +85,9 @@ public class LoansService {
             return ResponseEntity.notFound().build();
         }
 
-        if(book.getAvailable_quantity() < 1){
+        if(book.getAvailable_quantity() < 1 || book.getStatus().equals(BookENUM.INDISPONIVEL)) {
             logger.warn("Falha ao registrar empréstimo: Livro indisponível.");
+            book.setStatus(BookENUM.INDISPONIVEL);
             return ResponseEntity.badRequest().build();
         } else if (loanRepository.countByUserId(user.getUser_id()) >= 3) {
             logger.warn("Falha ao registrar empréstimo: Usuário atingiu o limite de empréstimos.");
@@ -115,6 +117,7 @@ public class LoansService {
             if(ExistingLoan != null) {
                 BookModel book = ExistingLoan.getBook();
                 book.setAvailable_quantity(book.getAvailable_quantity() + 1);
+                book.setStatus(BookENUM.DISPONIVEL);
                 bookReposiroty.save(book);
 
                 ExistingLoan.setActual_return_date(LocalDate.now());
